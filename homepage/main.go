@@ -14,8 +14,7 @@ var templates map[string]*template.Template
 type Template struct {
 }
 
-func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Content)
-error {
+func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 	return templates[name].ExecuteTemplate(w, "layout.html", data)
 }
 
@@ -33,9 +32,9 @@ func main() {
 	e.Static("/public/img/", "./public/img/")
 
 	e.GET("/", HandleIndexGet)
-	e.GET("/api/hello", HandleApiHelloGet)
+	e.GET("/api/hello", HandleAPIHelloGet)
 
-	e.Logger.Fatal(e.State(":3000"))
+	e.Logger.Fatal(e.Start(":3000"))
 }
 
 func init() {
@@ -43,16 +42,15 @@ func init() {
 }
 
 func loadTemplates() {
-	var baseTemplate = "templates/layout.html"
+	var baseTemplate = "template/layout.html"
 	templates = make(map[string]*template.Template)
-	templates =["index"] = template.Must(
-		template.ParseFiles(baseTemplate, "templates/hello.html")
-	)
+	templates["index"] = template.Must(
+		template.ParseFiles(baseTemplate, "template/hello.html"))
 }
-func HndleIndexGet(c echo.Content) error {
+func HandleIndexGet(c echo.Context) error {
 	return c.Render(http.StatusOK, "index", "World")
 }
 
-func HandlerAPIHelloGet(c echo.Content) error {
+func HandleAPIHelloGet(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{"Hello": "world"})
 }
